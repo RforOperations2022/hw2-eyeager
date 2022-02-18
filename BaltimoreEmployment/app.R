@@ -116,6 +116,13 @@ body <- dashboardBody(tabItems(
     
     # Employers page ----------------------------------------------
     tabItem("employers",
+            # Input and Value Boxes ----------------------------------------------
+            fluidRow(
+                valueBoxOutput("jobs"),
+                valueBoxOutput("wages"),
+                valueBoxOutput("establishments")
+            ),
+            
             fluidRow(
                 tabBox(title = "Plot",
                        width = 12,
@@ -255,7 +262,22 @@ server <- function(input, output) {
         sw <- swInput()
         num <- round(mean(sw$height, na.rm = T), 2)
         
-        valueBox(subtitle = "Avg Height", value = num, icon = icon("sort-numeric-asc"), color = "green")
+        valueBox(subtitle = "Avg Height", value = num, icon = icon("sort-numeric-asc"), color = "blue")
+    })
+    
+    # Total jobs value box ----------------------------------------------
+    output$jobs <- renderValueBox({
+        valueBox(subtitle = "Jobs", value = "352.7K", color = "blue")
+    })
+    
+    # Median wage value box ----------------------------------------------
+    output$wages <- renderValueBox({
+        valueBox(subtitle = "Median Wage", value = "$24.03", color = "blue")
+    })
+    
+    # Total Establishments box ----------------------------------------------
+    output$establishments <- renderValueBox({
+        valueBox(subtitle = "Establishments", value = "13.7K", color = "blue")
     })
 }
 
