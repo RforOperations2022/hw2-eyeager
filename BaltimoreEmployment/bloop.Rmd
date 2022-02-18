@@ -23,6 +23,13 @@ top.employers <- read_excel('Data/top_employers.xlsx') %>%
            Company = as.character(Company),
            Employees = as.numeric(Employees),
            Industry = as.character(Industry))
+
+wages <- read_excel('Data/nlihc.xlsx') %>%
+    mutate(Occupation = as.character(Occupation),
+           Wage = as.numeric(Wage),
+           Employment = as.numeric(Employment))
+
+wages <- wages[, c('Occupation', 'Employment', 'Wage')]
 ```
 
 ## Including Plots
@@ -35,5 +42,15 @@ ggplot(top.employers.new, aes(x=reorder(Company, Employees), y=Employees)) +
                 geom_bar(stat='identity') + coord_flip() + labs(x='') + 
                 ggtitle('Top Private Sector Employers')
 ```
+```{r}
+ggplot(wages, aes(x=reorder(Occupation, Wage), y=Wage)) + 
+                geom_bar(stat='identity') + coord_flip() + 
+                ggtitle('Top Private Sector Employers') + 
+                theme(plot.margin = margin(10,1000,10,1000))
+```
 
+```{r}
+
+ggplot(wages, aes(x=Wage, y=Employment)) + geom_point()
+```
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

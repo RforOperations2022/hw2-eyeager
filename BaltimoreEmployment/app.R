@@ -20,6 +20,13 @@ top.employers <- read_excel('Data/top_employers.xlsx') %>%
            Employees = as.numeric(Employees),
            Industry = as.character(Industry))
 
+wages <- read_excel('Data/nlihc.xlsx') %>%
+    mutate(Occupation = as.character(Occupation),
+           Wage = as.numeric(Wage),
+           Employment = as.numeric(Employment))
+
+wages <- wages[, c('Occupation', 'Employment', 'Wage')]
+
 # Avoid plotly issues ----------------------------------------------
 pdf(NULL)
 
@@ -59,7 +66,13 @@ sidebar <- dashboardSidebar(
                     min = 1,
                     max = 30,
                     value = c(1,30),
-                    step = 1)
+                    step = 1),
+        
+        # Select occupation to highlight
+        selectInput(inputId = "occ",
+                    label = "Occupation:",
+                    choices = unique(wages$Occupation),
+                    selected = "WAITERS AND WAITRESSES")
     )
 )
 
@@ -90,17 +103,23 @@ body <- dashboardBody(tabItems(
                 box(title = "Selected Character Stats", DT::dataTableOutput("table"), width = 12))
     ),
     
-    # Data Table Page ----------------------------------------------
+    # Employers page ----------------------------------------------
     tabItem("employers",
             fluidRow(
                 tabBox(title = "Plot",
                        width = 12,
                        tabPanel("Employers", plotlyOutput("plot_employers"))
-            )
-)
-)
-)
-)
+            ))),
+            
+    # Wage by Occupation page ----------------------------------------------
+    tabItem("wages",
+            fluidRow(
+                tabBox(title = "Plot",
+                       width = 12,
+                       tabPanel("Wages", plotlyOutput("plot_wages"))
+            )))
+            
+))
 
 
 ui <- dashboardPage(header, sidebar, body)
@@ -130,6 +149,12 @@ server <- function(input, output) {
                              top.employers$Rank <= input$employerSelect[2]),]
     })
     
+    # Create a new column to update colors on scatter plot based on which occupation selected
+    wages.imp <- reactive({
+        wages %>%
+            add_column(z = wages$Occupation == input$occ)
+    })
+    
     # Reactive melted data ----------------------------------------------
     mwInput <- reactive({
         swInput() %>%
@@ -153,6 +178,16 @@ server <- function(input, output) {
             coord_flip() + 
             labs(x='') + 
             ggtitle('Top Private Sector Employers')
+    })
+    
+    # A plot showing wages by occupation -----------------------------
+    output$plot_wages <- renderPlotly({
+        
+        # Generate Plot ----------------------------------------------
+        ggplot(wages.imp(), aes(x=Wage, y=Employment, color=z)) + 
+            geom_point() + 
+            theme(legend.position = 'none') + 
+            ggtitle('Wages and Employment by Occupation')
     })
     
     # A plot showing the height of characters -----------------------------------
