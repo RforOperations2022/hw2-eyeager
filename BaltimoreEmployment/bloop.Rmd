@@ -30,7 +30,8 @@ top.employers <- read_excel('Data/top_employers.xlsx') %>%
 You can also embed plots, for example:
 
 ```{r}
-ggplot(top.employers, aes(x=reorder(Company, Employees), y=Employees)) + 
+top.employers.new <- top.employers[which(top.employers$Rank > 5),]
+ggplot(top.employers.new, aes(x=reorder(Company, Employees), y=Employees)) + 
                 geom_bar(stat='identity') + coord_flip() + labs(x='') + 
                 ggtitle('Top Private Sector Employers')
 ```

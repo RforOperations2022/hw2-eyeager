@@ -113,6 +113,17 @@ server <- function(input, output) {
         return(starwars)
     })
     
+    # Reactive top employer function -------------------------------------------
+    top.employer.imp <- reactive({
+        top.employer %>%
+            
+        # Slider Filter ----------------------------------------------
+        filter(Rank >= input$employerSelect[1] & Rank <= input$employerSelect[2])
+        
+        # Return dataframe ----------------------------------------------
+        return(top.employer)
+    })
+    
     # Reactive melted data ----------------------------------------------
     mwInput <- reactive({
         swInput() %>%
