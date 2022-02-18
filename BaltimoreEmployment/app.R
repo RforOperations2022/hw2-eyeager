@@ -88,9 +88,20 @@ body <- dashboardBody(tabItems(
     tabItem("table",
             fluidPage(
                 box(title = "Selected Character Stats", DT::dataTableOutput("table"), width = 12))
-    )
+    ),
+    
+    # Data Table Page ----------------------------------------------
+    tabItem("employers",
+            fluidRow(
+                tabBox(title = "Plot",
+                       width = 12,
+                       tabPanel("Employers", plotlyOutput("plot_employers"))
+            )
 )
 )
+)
+)
+
 
 ui <- dashboardPage(header, sidebar, body)
 
@@ -114,14 +125,9 @@ server <- function(input, output) {
     })
     
     # Reactive top employer function -------------------------------------------
-    top.employer.imp <- reactive({
-        top.employer %>%
-            
-        # Slider Filter ----------------------------------------------
-        filter(Rank >= input$employerSelect[1] & Rank <= input$employerSelect[2])
-        
-        # Return dataframe ----------------------------------------------
-        return(top.employer)
+    top.employers.imp <- reactive({
+        top.employers[which(top.employers$Rank >= input$employerSelect[1] & 
+                             top.employers$Rank <= input$employerSelect[2]),]
     })
     
     # Reactive melted data ----------------------------------------------
@@ -136,6 +142,17 @@ server <- function(input, output) {
         
         # Generate Plot ----------------------------------------------
         ggplot(data = dat, aes(x = name, y = as.numeric(value), fill = name)) + geom_bar(stat = "identity")
+    })
+    
+    # A plot showing top employers -----------------------------
+    output$plot_employers <- renderPlotly({
+        
+        # Generate Plot ----------------------------------------------
+        ggplot(data = top.employers.imp(), aes(x=reorder(Company, Employees), y=Employees)) + 
+            geom_bar(stat = "identity") + 
+            coord_flip() + 
+            labs(x='') + 
+            ggtitle('Top Private Sector Employers')
     })
     
     # A plot showing the height of characters -----------------------------------
