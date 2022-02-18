@@ -14,31 +14,17 @@ starwars.load <- starwars %>%
            starships = as.character(starships),
            name = as.factor(name))
 
-print(getwd())
-top.employers <- read_excel('Data/top_employers.xlsx')
+top.employers <- read_excel('Data/top_employers.xlsx') %>%
+    mutate(Rank = as.numeric(Rank),
+           Company = as.character(Company),
+           Employees = as.numeric(Employees),
+           Industry = as.character(Industry))
 
 # Avoid plotly issues ----------------------------------------------
 pdf(NULL)
 
 # Application header & title ----------------------------------------------
-header <- dashboardHeader(title = "Star Wars Dashboard",
-                          
-                          # Drop down menu with hard coded values ------------------------------
-                          dropdownMenu(type = "notifications",
-                                       notificationItem(text = "5 escape pods deployed", 
-                                                        icon = icon("users"))
-                          ),
-                          dropdownMenu(type = "tasks", badgeStatus = "success",
-                                       taskItem(value = 110, color = "green",
-                                                "Midichlorians")
-                          ),
-                          dropdownMenu(type = "messages",
-                                       messageItem(
-                                           from = "Princess Leia",
-                                           message = HTML("Help Me Obi-Wan Kenobi! <br> You're my only hope."),
-                                           icon = icon("exclamation-circle"))
-                          )
-)
+header <- dashboardHeader(title = "Baltimore Work")
 
 # Dashboard Sidebar ----------------------------------------------
 sidebar <- dashboardSidebar(
@@ -48,6 +34,8 @@ sidebar <- dashboardSidebar(
         # Menu Items ----------------------------------------------
         menuItem("Plot", icon = icon("bar-chart"), tabName = "plot"),
         menuItem("Table", icon = icon("table"), tabName = "table", badgeLabel = "new", badgeColor = "green"),
+        menuItem("Top Employers", tabName = "employers"),
+        menuItem("Wages by Occupation", tabName = "wages"),
         
         # Inputs: select variables to plot ----------------------------------------------
         selectInput("worldSelect",
@@ -63,6 +51,14 @@ sidebar <- dashboardSidebar(
                     min = min(starwars.load$birth_year, na.rm = T),
                     max = max(starwars.load$birth_year, na.rm = T),
                     value = c(min(starwars.load$birth_year, na.rm = T), max(starwars.load$birth_year, na.rm = T)),
+                    step = 1),
+        
+        # Number of employers selection ----------------------------------------------
+        sliderInput("employerSelect",
+                    "Top Employers:",
+                    min = 1,
+                    max = 30,
+                    value = c(1,30),
                     step = 1)
     )
 )
