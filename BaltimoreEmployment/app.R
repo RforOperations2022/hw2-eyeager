@@ -124,25 +124,28 @@ body <- dashboardBody(tabItems(
             ),
             
             fluidRow(
-                tabBox(title = "Plot",
+                tabBox(title = "Employers",
                        width = 12,
-                       tabPanel("Employers", plotlyOutput("plot_employers"))
+                       tabPanel("Plot", plotlyOutput("plot_employers")),
+                       tabPanel("Data", DT::dataTableOutput("empTable"))
             ))),
             
     # Wage by Occupation page ----------------------------------------------
     tabItem("wages",
             fluidRow(
-                tabBox(title = "Plot",
+                tabBox(title = "Wages",
                        width = 12,
-                       tabPanel("Wages", plotlyOutput("plot_wages"))
+                       tabPanel("Plot", plotlyOutput("plot_wages")),
+                       tabPanel("Data", DT::dataTableOutput("wageTable"))
             ))),
     
     # Industry page ----------------------------------------------
     tabItem("industry",
             fluidRow(
-                tabBox(title = "Plot",
+                tabBox(title = "Industries",
                        width = 12,
-                       tabPanel("Industry", plotlyOutput("plot_industry"))
+                       tabPanel("Plot", plotlyOutput("plot_industry")),
+                       tabPanel("Data", DT::dataTableOutput("industryTable"))
                 )))
             
 ))
@@ -247,6 +250,21 @@ server <- function(input, output) {
     # Data table of characters ----------------------------------------------
     output$table <- DT::renderDataTable({
         subset(swInput(), select = c(name, height, mass, birth_year, homeworld, species, films))
+    })
+    
+    # Data table of employers ----------------------------------------------
+    output$empTable <- DT::renderDataTable({
+        top.employers.imp()
+    })
+    
+    # Data table of wages ----------------------------------------------
+    output$wageTable <- DT::renderDataTable({
+        wages
+    })
+    
+    # Data table of employers ----------------------------------------------
+    output$industryTable <- DT::renderDataTable({
+        industry.imp()
     })
     
     # Mass mean info box ----------------------------------------------
