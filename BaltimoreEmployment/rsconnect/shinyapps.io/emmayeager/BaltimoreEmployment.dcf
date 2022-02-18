@@ -1,0 +1,14 @@
+name: BaltimoreEmployment
+title: BaltimoreEmployment
+username:
+account: emmayeager
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5688310
+bundleId: 5595948
+url: https://emmayeager.shinyapps.io/BaltimoreEmployment/
+when: 1645227346.83003
+lastSyncTime: 1645227346.83003
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: bloop.Rmd
