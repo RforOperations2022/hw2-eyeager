@@ -27,6 +27,11 @@ wages <- read_excel('Data/nlihc.xlsx') %>%
 
 wages <- wages[, c('Occupation', 'Employment', 'Wage')]
 
+industry <- read_excel('Data/Industry.xlsx') %>%
+    mutate(Industry = as.character(Industry),
+           Establishments = as.numeric(Establishments),
+           Public = as.numeric(Public))
+
 # Avoid plotly issues ----------------------------------------------
 pdf(NULL)
 
@@ -43,6 +48,7 @@ sidebar <- dashboardSidebar(
         menuItem("Table", icon = icon("table"), tabName = "table", badgeLabel = "new", badgeColor = "green"),
         menuItem("Top Employers", tabName = "employers"),
         menuItem("Wages by Occupation", tabName = "wages"),
+        menuItem("Top Industries", tabName = "industry"),
         
         # Inputs: select variables to plot ----------------------------------------------
         selectInput("worldSelect",
@@ -67,6 +73,11 @@ sidebar <- dashboardSidebar(
                     max = 30,
                     value = c(1,30),
                     step = 1),
+        
+        # Show public sector
+        checkboxInput(inputId = "show_public",
+                      label = "Show public sector",
+                      value = TRUE),
         
         # Select occupation to highlight
         selectInput(inputId = "occ",
@@ -117,7 +128,15 @@ body <- dashboardBody(tabItems(
                 tabBox(title = "Plot",
                        width = 12,
                        tabPanel("Wages", plotlyOutput("plot_wages"))
-            )))
+            ))),
+    
+    # Industry page ----------------------------------------------
+    tabItem("industry",
+            fluidRow(
+                tabBox(title = "Plot",
+                       width = 12,
+                       tabPanel("Industry", plotlyOutput("plot_industry"))
+                )))
             
 ))
 
@@ -155,6 +174,17 @@ server <- function(input, output) {
             add_column(z = wages$Occupation == input$occ)
     })
     
+    # Reactive show public sector data -------------------------------------------
+    industry.imp <- reactive({
+        if (input$show_public==0) {
+            industry %>%
+                filter(Public != 1)
+        }
+        else {
+            industry
+        }
+    })
+    
     # Reactive melted data ----------------------------------------------
     mwInput <- reactive({
         swInput() %>%
@@ -188,6 +218,17 @@ server <- function(input, output) {
             geom_point() + 
             theme(legend.position = 'none') + 
             ggtitle('Wages and Employment by Occupation')
+    })
+    
+    # A plot showing industries -----------------------------
+    output$plot_industry <- renderPlotly({
+        
+        # Generate Plot ----------------------------------------------
+        ggplot(data = industry.imp(), aes(x=reorder(Industry, Establishments), y=Establishments)) + 
+            geom_bar(stat = "identity") + 
+            coord_flip() + 
+            labs(x='') + 
+            ggtitle('Top Industries')
     })
     
     # A plot showing the height of characters -----------------------------------
